@@ -1,4 +1,4 @@
-// app.js - VERSIÓN FINAL CORREGIDA
+// app.js - VERSIÓN FINAL CON ENVÍO FETCH Y CONFIRMACIÓN
 document.addEventListener('DOMContentLoaded', function() {
   
   // Elementos del DOM
@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const comprarBtn = document.getElementById('comprarBtn');
   const formularioSection = document.getElementById('formularioSection');
   const volverBtn = document.getElementById('volverBtn');
+  const volverInicioBtn = document.getElementById('volverInicioBtn');
+  const confirmacionDiv = document.getElementById('mensajeConfirmacion');
+  const correoConfirmacion = document.getElementById('correoConfirmacion');
   
   // Elementos del selector
   const cantidadInput = document.getElementById('cantidad');
@@ -19,13 +22,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const montoHidden = document.getElementById('monto_hidden');
   
   // Constantes
-  const PRECIO_BOLETO = 500;
+  const PRECIO_BOLETO = 500; // Cambiado a 500 según imagen
   const MIN_BOLETOS = 2;
-  const MAX_BOLETOS = 1000;
+  const MAX_BOLETOS = 50;
   
   // Manejo de archivo
   const archivoInput = document.getElementById('comprobante');
   const archivoNombre = document.querySelector('.archivo-nombre');
+  
+  // Elementos de barra de progreso
+  const barraProgreso = document.getElementById('barraProgreso');
+  const porcentajeDisplay = document.getElementById('porcentajeDisplay');
+  const porcentajeGrande = document.getElementById('porcentajeGrande');
   
   // ========== MODAL TÉRMINOS ==========
   const tycAceptado = localStorage.getItem('tycAceptado');
@@ -62,17 +70,30 @@ document.addEventListener('DOMContentLoaded', function() {
     comprarBtn.addEventListener('click', function(e) {
       e.preventDefault();
       formularioSection.classList.remove('hidden');
+      confirmacionDiv.classList.add('hidden'); // Ocultar confirmación si estaba visible
       setTimeout(() => {
         formularioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     });
   }
   
-  // ========== BOTÓN VOLVER ==========
+  // ========== BOTÓN VOLVER (del formulario) ==========
   if (volverBtn) {
     volverBtn.addEventListener('click', function() {
       formularioSection.classList.add('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+  
+  // ========== BOTÓN VOLVER AL INICIO (desde confirmación) ==========
+  if (volverInicioBtn) {
+    volverInicioBtn.addEventListener('click', function() {
+      confirmacionDiv.classList.add('hidden');
+      formularioSection.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Opcional: resetear formulario
+      document.getElementById('formRifa').reset();
+      actualizarTotal(); // restaurar total
     });
   }
   
@@ -115,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
   actualizarTotal();
   
   // ========== CONTADOR REGRESIVO ==========
-  const fechaSorteo = new Date(2026, 2, 9, 22, 0, 0); // 9 marzo 2026 22:00
+  const fechaSorteo = new Date(2026, 2, 9, 16, 0, 0); // 9 marzo 2026 16:00 (4:00pm)
   const diasEl = document.getElementById('dias');
   const horasEl = document.getElementById('horas');
   const minutosEl = document.getElementById('minutos');
@@ -172,15 +193,77 @@ document.addEventListener('DOMContentLoaded', function() {
     cedulaE.addEventListener('change', function() { if (this.checked) cedulaV.checked = false; });
   }
   
-  // ========== BARRA DE PROGRESO (simulada) ==========
-  const barra = document.querySelector('.barra-llenado');
-  if (barra) barra.style.width = '39%'; // 100% - 61%
+  // ========== BARRA DE PROGRESO (controlable) ==========
+  // Para cambiar el porcentaje, modifica estas variables
+  function actualizarProgreso(porcentajeRestante) {
+    // porcentajeRestante es lo que queda (ej. 91)
+    const porcentajeVendido = 100 - porcentajeRestante;
+    if (barraProgreso) {
+      barraProgreso.style.width = porcentajeVendido + '%';
+    }
+    if (porcentajeDisplay) {
+      porcentajeDisplay.textContent = porcentajeRestante.toFixed(2) + '%';
+    }
+    if (porcentajeGrande) {
+      porcentajeGrande.textContent = porcentajeRestante + '%';
+    }
+  }
   
-  // ========== PREVENIR ENVÍO POR DEFECTO (Netlify lo maneja) ==========
+  // Ejemplo: establecer 91% restante (como en tu imagen)
+  actualizarProgreso(91); // Cambia este número para ajustar
+  
+  // ========== ENVÍO DEL FORMULARIO CON FETCH ==========
   const form = document.getElementById('formRifa');
+  const btnEnviar = document.getElementById('btnEnviar');
+  
   if (form) {
-    form.addEventListener('submit', function(e) {
-      console.log('Formulario enviado a Netlify');
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault(); // Evita recarga
+      
+      // Validaciones rápidas
+      if (!document.getElementById('aceptoTerminos').checked) {
+        alert('Debes aceptar los términos y condiciones');
+        return;
+      }
+      
+      // Deshabilitar botón
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'ENVIANDO...';
+      
+      // Recoger datos del formulario
+      const formData = new FormData(form);
+      
+      try {
+        // Enviar a Netlify (mismo endpoint)
+        const response = await fetch('/', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          // Éxito: mostrar confirmación
+          const email = formData.get('email');
+          correoConfirmacion.textContent = email || 'tu correo';
+          
+          formularioSection.classList.add('hidden');
+          confirmacionDiv.classList.remove('hidden');
+          
+          // Resetear formulario
+          form.reset();
+          actualizarTotal(); // Restaurar total por si acaso
+          
+          // Opcional: scroll a confirmación
+          confirmacionDiv.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          alert('Error al enviar. Intenta de nuevo.');
+        }
+      } catch (error) {
+        alert('Error de conexión. Verifica tu internet.');
+        console.error(error);
+      } finally {
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = 'Comprar';
+      }
     });
   }
 });

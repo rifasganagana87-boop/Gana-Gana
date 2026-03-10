@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔥 COMBO DE BENDICION · GANA HOY 🔥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>🔥 COMBO DE BENDICIÓN · GANA HOY 🔥</title>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Google Fonts -->
@@ -45,28 +45,27 @@
 
     <!-- HERO -->
     <section class="hero">
-      <!-- Barra de progreso superior -->
+      <!-- Barra de progreso superior (el ancho se controla con el estilo) -->
       <div class="progreso-superior">
-        <div class="progreso-texto">QUEDAN <span class="porcentaje">91.00%</span></div>
+        <div class="progreso-texto">QUEDAN <span class="porcentaje" id="porcentajeDisplay">91.00%</span></div>
         <div class="barra-progreso-superior">
-          <div class="barra-llenado" style="width: 09%"></div>
+          <div class="barra-llenado" id="barraProgreso" style="width: 9%"></div>
         </div>
       </div>
 
-      <h1 class="titulo-principal">GANATE <span class="destacado">Bera BWS y Gr 250 + 10 Electrodomesticos</span></h1>
+      <h1 class="titulo-principal">GANATE <span class="destacado">BERA BWS Y GR 250 + 10 ELECTRODOMÉSTICOS</span></h1>
       
       <div class="precio-container">
-        <span class="precio">500 Bolivares</span>
+        <span class="precio">500 Bolívares</span>
       </div>
 
       <div class="info-sorteo">
-        <p class="hora">4:00pm 1000$</p>
-        <p class="top-compra">1:00pm 1000$</p>
+        <p class="hora">4:00pm 1000$ · 1:00pm 1000$</p>
         <p class="fecha">JUEGOS EL LUNES 09 DE MARZO</p>
-        <p class="fecha-detalle">COMBO DE BENDICION 09/03/26</p>
+        <p class="fecha-detalle">COMBO DE BENDICIÓN 09/03/26</p>
       </div>
-
-      <!-- BOTÓN COMPRAR TICKETS (único) -->
+   
+     <!-- BOTÓN COMPRAR TICKETS -->
       <div class="botones-container">
         <button id="comprarBtn" class="btn-comprar">
           <i class="fas fa-ticket-alt"></i>
@@ -76,7 +75,12 @@
       </div>
 
       <div class="disponible">
-        QUEDAN <span class="porcentaje-grande">91%</span> DISPONIBLE
+        QUEDAN <span class="porcentaje-grande" id="porcentajeGrande">91%</span> DISPONIBLE
+      </div>
+
+      <!-- Texto "SÍGUENOS" -->
+      <div class="siguenos">
+        <p>SÍGUENOS</p>
       </div>
     </section>
 
@@ -117,7 +121,7 @@
           <label>Cantidad de tickets:</label>
           <div class="selector-control">
             <button type="button" id="decrementBtn" class="btn-cantidad">−</button>
-            <input type="number" name="cantidad" id="cantidad" value="2" min="2" max="1000" class="cantidad-input" required>
+            <input type="number" name="cantidad" id="cantidad" value="2" min="2" max="50" class="cantidad-input" required>
             <button type="button" id="incrementBtn" class="btn-cantidad">+</button>
           </div>
         </div>
@@ -174,14 +178,26 @@
       </form>
     </section>
 
-    <!-- FLAYER (solo imagen) -->
+    <!-- MENSAJE DE CONFIRMACIÓN (oculto inicialmente) -->
+    <div id="mensajeConfirmacion" class="confirmacion hidden">
+      <div class="confirmacion-contenido">
+        <i class="fas fa-check-circle confirmacion-icono"></i>
+        <h2>¡GRACIAS POR TU PARTICIPACIÓN!</h2>
+        <p>Hemos recibido tu solicitud correctamente.</p>
+        <p>Los tickets serán enviados a tu correo electrónico una vez verificado el pago.</p>
+        <p class="confirmacion-correo" id="correoConfirmacion"></p>
+        <button id="volverInicioBtn" class="btn-volver-inicio">Volver al inicio</button>
+      </div>
+    </div>
+
+    <!-- FLAYER -->
     <section class="flayer-section">
       <div class="flayer-contenedor">
         <img src="https://iili.io/q5dX5NV.jpg" alt="Flayer juega y gana" class="flayer-imagen">
       </div>
     </section>
 
-    <!-- ALIADOS (al final, en línea horizontal) -->
+    <!-- ALIADOS -->
     <section class="aliados-section">
       <h3 class="aliados-titulo">🌟 NUESTROS ALIADOS 🌟</h3>
       <div class="aliados-grid">
